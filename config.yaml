@@ -38,4 +38,4 @@ report:
 dingtalk:
   # Webhook 地址（建议放在 GitHub Secrets 中）
   webhook: "https://oapi.dingtalk.com/robot/send?access_token=c9140c66dbb596f4ffde623878ad737dec67b2c2243c9884e242b3f4f6e53eae"
-  secret: ""  # 钉钉机器人安全密钥（可选）
+  secret: "SEC8ea6c1ce1b94d5f2c7d2775a193457bae96e86cb4998f6c6827d8c7aee6417f4"
