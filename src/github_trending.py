@@ -29,69 +29,24 @@ def fetch_github_trending(languages: List[str] = None, time_range: str = "weekly
         "since": time_range
     }
     
-    if not languages:
+    if languages is None:
         languages = ["Python", "TypeScript"]
     
-    for lang in languages:
-        params["spoken_language_code"] = ""
-        
-        try:
-            url = f"https://github.com/trending/{lang}"
-            logger.info(f"Fetching GitHub Trending: {url}")
+    if languages:
+        for lang in languages:
+            params["spoken_language_code"] = ""
             
-            response = requests.get(url, params=params, headers=headers, timeout=30)
-            response.raise_for_status()
-            
-            soup = BeautifulSoup(response.text, "lxml")
-            articles = soup.select("article.Box-row")
-            
-            for article in articles[:5]:
-                try:
-                    title_elem = article.select_one("h2 a")
-                    if not title_elem:
-                        continue
-                    
-                    full_name = title_elem.get("href", "").strip("/")
-                    if full_name in seen:
-                        continue
-                    seen.add(full_name)
-                    
-                    desc_elem = article.select_one("p")
-                    description = desc_elem.text.strip() if desc_elem else ""
-                    
-                    stars_elem = article.select_one("span.d-inline-block.float-sm-right")
-                    stars = stars_elem.text.strip() if stars_elem else "0"
-                    
-                    lang_elem = article.select_one("span[itemprop='programmingLanguage']")
-                    language = lang_elem.text.strip() if lang_elem else lang
-                    
-                    projects.append({
-                        "full_name": full_name,
-                        "description": description,
-                        "stars": stars,
-                        "language": language,
-                        "url": f"https://github.com/{full_name}"
-                    })
-                except Exception as e:
-                    logger.warning(f"Error parsing project: {e}")
-                    continue
-                    
-        except Exception as e:
-            logger.error(f"Error fetching GitHub Trending for {lang}: {e}")
-    
-    if topics:
-        for topic in topics:
             try:
-                url = f"https://github.com/topics/{topic}"
-                logger.info(f"Fetching GitHub Topics: {url}")
+                url = f"https://github.com/trending/{lang}"
+                logger.info(f"Fetching GitHub Trending: {url}")
                 
-                response = requests.get(url, headers=headers, timeout=30)
+                response = requests.get(url, params=params, headers=headers, timeout=30)
                 response.raise_for_status()
                 
                 soup = BeautifulSoup(response.text, "lxml")
-                articles = soup.select("article.box-shadow")
+                articles = soup.select("article.Box-row")
                 
-                for article in articles[:5]:
+                for article in articles[:10]:
                     try:
                         title_elem = article.select_one("h2 a")
                         if not title_elem:
@@ -105,7 +60,53 @@ def fetch_github_trending(languages: List[str] = None, time_range: str = "weekly
                         desc_elem = article.select_one("p")
                         description = desc_elem.text.strip() if desc_elem else ""
                         
-                        stars_elem = article.select_one("span.d-inline-block")
+                        stars_elem = article.select_one("span.d-inline-block.float-sm-right")
+                        stars = stars_elem.text.strip() if stars_elem else "0"
+                        
+                        lang_elem = article.select_one("span[itemprop='programmingLanguage']")
+                        language = lang_elem.text.strip() if lang_elem else lang
+                        
+                        projects.append({
+                            "full_name": full_name,
+                            "description": description,
+                            "stars": stars,
+                            "language": language,
+                            "url": f"https://github.com/{full_name}"
+                        })
+                    except Exception as e:
+                        logger.warning(f"Error parsing project: {e}")
+                        continue
+                        
+            except Exception as e:
+                logger.error(f"Error fetching GitHub Trending for {lang}: {e}")
+    
+    if topics:
+        for topic in topics:
+            try:
+                url = f"https://github.com/topics/{topic}"
+                logger.info(f"Fetching GitHub Topics: {url}")
+                
+                response = requests.get(url, headers=headers, timeout=30)
+                response.raise_for_status()
+                
+                soup = BeautifulSoup(response.text, "lxml")
+                articles = soup.select("article.border.rounded")
+                
+                for article in articles[:10]:
+                    try:
+                        title_elem = article.select_one("h3 a.Link.text-bold")
+                        if not title_elem:
+                            continue
+                        
+                        full_name = title_elem.get("href", "").strip("/")
+                        if full_name in seen:
+                            continue
+                        seen.add(full_name)
+                        
+                        desc_elem = article.select_one("p.color-fg-muted")
+                        description = desc_elem.text.strip() if desc_elem else ""
+                        
+                        stars_elem = article.select_one("span.Counter")
                         stars = stars_elem.text.strip() if stars_elem else "0"
                         
                         lang_elem = article.select_one("span[itemprop='programmingLanguage']")
@@ -134,6 +135,5 @@ def format_project_for_ai(project: Dict) -> str:
     格式化项目信息用于 AI 摘要
     """
     return f"""项目: {project['full_name']}
-语言: {project['language']}
 Stars: {project['stars']}
 描述: {project['description'][:200]}"""

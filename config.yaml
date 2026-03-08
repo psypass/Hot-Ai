@@ -22,14 +22,12 @@ arxiv:
 
 # GitHub Trending 配置
 github_trending:
-  languages: []
-  topics:
-    - "ai-agent"
-    - "llm-agent"
-    - "autonomous-agent"
-    - "agent-framework"
-    - "agent-sdk"
+  languages:
+    - "Python"
+    - "TypeScript"
+  topics: []
   time_range: "weekly"
+  max_results: 10
 
 # 周报配置
 report:

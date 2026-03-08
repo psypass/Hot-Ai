@@ -103,34 +103,34 @@ async def generate_report(mode: str = "daily"):
     
     if projects and os.getenv("AI_API_KEY"):
         logger.info("Generating project summaries with AI...")
-        for i, project in enumerate(projects[:5]):
+        for i, project in enumerate(projects[:10]):
             project_info = format_project_for_ai(project)
             summary = await summarizer.summarize_single_project(project_info)
-            projects_details += f"{i+1}. **[{project['full_name']}]({project['url']})** ({project['stars']} stars)\n   - {project['description'][:100]}...\n   - 点评: {summary}\n\n"
+            projects_details += f"{i+1}. **[{project['full_name']}]({project['url']})** ({project['stars']} stars)\n   - {project['description'][:200]}\n   - 点评: {summary}\n\n"
         
-        projects_summary = await summarizer.summarize_projects("\n\n".join([format_project_for_ai(p) for p in projects[:5]]))
+        projects_summary = await summarizer.summarize_projects("\n\n".join([format_project_for_ai(p) for p in projects[:10]]))
     
     if not os.getenv("AI_API_KEY"):
         papers_details = "\n".join([f"- [{p['title']}](http://arxiv.org/abs/{p['arxiv_id']})" for p in papers[:5]])
-        projects_details = "\n".join([f"- [{p['full_name']}]({p['url']}) ({p['stars']} stars)" for p in projects[:5]])
+        projects_details = "\n".join([f"- [{p['full_name']}]({p['url']}) ({p['stars']} stars)" for p in projects[:10]])
     
     title = config["report"]["title"]
     week_num = datetime.now().isocalendar()[1]
     
     time_range_str = "每日" if mode == "daily" else "每周"
-    report_content = f"""### 📚 arXiv 论文 ({len(papers)}篇)
-
-{papers_details}
-
-**📊 论文整体趋势:**
-{papers_summary}
-
-### ⭐ GitHub Trending ({len(projects)}个)
+    report_content = f"""### ⭐ GitHub Trending ({len(projects)}个)
 
 {projects_details}
 
 **📊 项目整体趋势:**
 {projects_summary}
+
+### 📚 arXiv 论文 ({len(papers)}篇)
+
+{papers_details}
+
+**📊 论文整体趋势:**
+{papers_summary}
 
 ---
 📅 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M')} | 第{week_num}周 | {time_range_str}趋势"""
