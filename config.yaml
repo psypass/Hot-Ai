@@ -25,6 +25,7 @@ github_trending:
   languages:
     - "Python"
     - "TypeScript"
+    - "Java"
   topics: []
   time_range: "weekly"
   max_results: 10
@@ -36,8 +37,4 @@ report:
   daily_output_file: "daily_report.md"
   output_file: "weekly_report.md"
 
-# 钉钉配置
 dingtalk:
-  # Webhook 地址（建议放在 GitHub Secrets 中）
-  webhook: "https://oapi.dingtalk.com/robot/send?access_token=c9140c66dbb596f4ffde623878ad737dec67b2c2243c9884e242b3f4f6e53eae"
-  secret: "SEC8ea6c1ce1b94d5f2c7d2775a193457bae96e86cb4998f6c6827d8c7aee6417f4"
